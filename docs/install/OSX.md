@@ -2,17 +2,7 @@
 
 ## 一、环境安装
 
-安装brew(请自行搜索brew安装)
-
-下载巡风
-
-```
-$ cd ~
-$ sudo brew install git
-$ git clone https://github.com/ysrc/xunfeng.git
-```
-
-### 1、操作系统依赖
+### 1. 安装brew
 
 使用 homebrew 在 Mac OSX 中进行软件的安装与管理, 执行如下命令安装 brew 工具:
 
@@ -20,12 +10,23 @@ $ git clone https://github.com/ysrc/xunfeng.git
 $ sudo ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
 
+### 2. 下载巡风
+
+```
+$ cd ~
+$ brew install git
+$ git clone https://github.com/ysrc/xunfeng.git
+```
+
+### 3. 操作系统依赖
+
 安装系统依赖:
 
 ```
-$ sudo brew install gcc libffi libpcap openssl
+$ brew install gcc libffi libpcap openssl
 ```
-### 2、python 依赖库
+
+### 4. python 依赖库
 
 更新`pip`到最新版本:
 
@@ -39,10 +40,10 @@ $ sudo pip install -U pip
 $ sudo pip install -r requirements.txt -i https://pypi.doubanio.com/simple/
 ```
 
-### 3、安装数据库
+### 5. 安装数据库
 
 ```
-$ sudo brew install mongodb
+$ brew install mongodb
 ```
 
 ## 二、部署与配置
@@ -50,12 +51,11 @@ $ sudo brew install mongodb
 ### 1. 启动数据库
 
 ```
-$ sudo mkdir /opt/xunfeng/db/
-$ sudo mongod --port 65521 --dbpath /opt/xunfeng/db/ &
+$ sudo mongod --port 65521 --dbpath ~/xunfeng/db/ &
 ```
 输入
 ```
-$ netstat an | grep 65521
+$ ps aux | grep mongod
 ```
 确定mongodb是否已启动，正常应有返回
 
@@ -63,23 +63,23 @@ $ netstat an | grep 65521
 
 ```
 $ sudo mongo 127.0.0.1:65521/xunfeng
-> db.createUser({user:'scan',pwd:'your password',roles:[{role:'dbOwner',db:'xunfeng'}]})
+> db.createUser({user:'username',pwd:'password',roles:[{role:'dbOwner',db:'xunfeng'}]})
 > exit
 ```
 
-这里的 `scan`，`your password` 需要更换为你的mongodb验证密码。
+这里的 `username`和`password` 分别为你想设置成的 mongodb 的用户名和密码。
 
-### 2. 导入数据库
+### 3. 导入数据库
 
-进入 `db` 文件夹, 执行如下命令:
+并且导入数据库:
 
 ```
-$ sudo mongorestore -h 127.0.0.1 --port 65521 -d xunfeng .
+$ sudo mongorestore -h 127.0.0.1 --port 65521 -d xunfeng ~/xunfeng/db
 ```
 
-### 3. 修改配置
+### 4. 修改配置
 
-修改系统数据库配置脚本 `Config.py`:
+修改系统数据库配置脚本 `Config.py`,这里是系统的用户名和登录的密码:
 
 ```python
 class Config(object):
@@ -87,20 +87,24 @@ class Config(object):
     PASSWORD = 'xunfeng321'
 ```
 
-修改 `PASSWORD` 字段内的密码, 设置成你的密码。
+修改 `DBUSERNAME` 和 `DBPASSWORD` 字段内的用户名和密码, 设置成你在第2步设置的的 mongodb 的用户名密码。
 
 ```python
 class ProductionConfig(Config):
     DB = '127.0.0.1'
     PORT = 65521
-    DBUSERNAME = 'scan'
-    DBPASSWORD = 'scanlol66'
+    DBUSERNAME = 'username'
+    DBPASSWORD = 'password'
     DBNAME = 'xunfeng'
 ```
-### 4. 运行系统
+### 5. 运行系统
 
 根据实际情况修改 `Conifg.py` 和 `Run.sh` 文件后, 执行:
 
 ```
-$ sh Run.sh
+$ sudo sh Run.sh
 ```
+## 6. 进入巡风
+
+打开浏览器，访问 http://127.0.0.1
+输入用户名 admin 密码 xunfeng321 即可进入巡风。
